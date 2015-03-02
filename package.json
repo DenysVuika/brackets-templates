@@ -1,0 +1,13 @@
+{
+  "name": "dvuyka.templates",
+  "title": "Project Templates",
+  "description": "Adds template-based project generation to Brackets",
+  "homepage": "https://github.com/DenisVuyka/brackets-templates",
+  "version": "1.0.0",
+  "categories": "snippets",
+  "author": "Denis Vuyka <denis.vuyka@gmail.com> (https://denisvuyka.wordpress.com)",
+  "license": "MIT",
+  "engines": {
+    "brackets": ">=0.38.0"
+  }
+}

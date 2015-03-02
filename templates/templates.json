@@ -1,0 +1,17 @@
+{
+  "html5": {
+    "id": "html5",
+    "name": "HTML5 (1.0.0)",
+    "package": "quickstart-html5-1.0.0.zip"
+  },
+  "bootstrap": {
+    "id": "bootstrap",
+    "name": "Bootstrap (1.0.0)",
+    "package": "quickstart-bootstrap-1.0.0.zip"
+  },
+  "angular": {
+    "id": "angular",
+    "name": "Angular.js (1.0.0)",
+    "package": "quickstart-angular-1.0.0.zip"
+  }
+}
