@@ -1,0 +1,45 @@
+.new-project-dialog .col-5 {
+  float: left;
+  width: 50%;
+}
+
+.new-project-dialog label {
+  font-weight: bold;
+  margin: 0;
+}
+
+.new-project-dialog label span {
+  color: #888;
+}
+
+.new-project-dialog input, 
+.new-project-dialog select {
+  margin: 2px 0;
+}
+
+.new-project-dialog .project-folder {
+  border-radius: 3px 0 0 3px;
+  cursor: text;    
+  width: 470px;
+}
+
+.new-project-dialog .change-folder-btn {
+  border-radius: 0 3px 3px 0;
+  margin: 0 0 0 -4px;
+}
+
+.new-project-dialog .project-name {
+  width: 265px;
+}
+
+.new-project-dialog .project-template {
+  border: 1px solid rgb(156, 158, 158);
+  box-shadow: rgba(0,0,0,0.117647) 0 1px 0 0 inset;
+  outline: none;
+  width: 280px;
+}
+
+.new-project-dialog .project-template:focus {
+  border: 1px solid #0055ad;
+  box-shadow: 0 0 0 2px #6fb5f1;
+}

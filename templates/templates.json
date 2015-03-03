@@ -6,12 +6,12 @@
   },
   "bootstrap": {
     "id": "bootstrap",
-    "name": "Bootstrap (1.0.0)",
+    "name": "Bootstrap v3.3.2 (1.0.0)",
     "package": "quickstart-bootstrap-1.0.0.zip"
   },
   "angular": {
     "id": "angular",
-    "name": "Angular.js (1.0.0)",
+    "name": "AngularJS v1.3.14 (1.0.0)",
     "package": "quickstart-angular-1.0.0.zip"
   }
 }
