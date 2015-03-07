@@ -89,9 +89,16 @@ define(function (require, exports, module) {
   
   function openProject(projectPath, notify) {
     ProjectManager.openProject(projectPath).done(function () {
-      if (notify) {
-        showInfoDialog(ExtensionStrings.PROJECT_GENERATED_MESSAGE);
-      }      
+      var readmePath = projectPath + '/' + 'readme.md';
+      var readme = FileSystem.getFileForPath(readmePath);
+      readme.exists(function (err, exists) {
+        if (!err && exists) {
+          CommandManager.execute(Commands.FILE_ADD_TO_WORKING_SET, { fullPath: readmePath });
+        }
+        if (notify) {
+          showInfoDialog(ExtensionStrings.PROJECT_GENERATED_MESSAGE);
+        }  
+      });
     });
   }
   
