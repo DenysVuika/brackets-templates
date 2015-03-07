@@ -1,5 +1,3 @@
-/*global define, $, brackets, Mustache */
-
 define(function (require, exports, module) {
   'use strict';
   
@@ -13,10 +11,12 @@ define(function (require, exports, module) {
       ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
       FileSystem = brackets.getModule("filesystem/FileSystem"),
       FileUtils = brackets.getModule('file/FileUtils'),
+      StringUtils = brackets.getModule('utils/StringUtils'),
       Strings = brackets.getModule('strings'),
       ExtensionStrings = require('strings');
   
   var NewProjectDialogTemplate = require("text!htmlContent/new-project-dialog.html");
+  var ProjectProgressDialogTemplate = require("text!htmlContent/project-progress-dialog.html");
   var zipUtils = new NodeDomain("zipUtils", ExtensionUtils.getModulePath(module, "node/zipUtils"));
   
   function unpackTemplate (template, projectPath, callback) {
@@ -26,29 +26,10 @@ define(function (require, exports, module) {
       .fail(callback);
   }
   
-  function generateProject (projectPath, templateName) {
-    var promise = new $.Deferred();
-    
-    if (!projectPath || !templateName) {
-      promise.reject(ExtensionStrings.ERROR_GENERATING_PROJECT);
-    } else {
-      var templateUrl = require.toUrl('./templates/' + templateName);
-      unpackTemplate(templateUrl, projectPath, function (err) {
-        if (err) {
-          promise.reject(err);
-        } else {
-          promise.resolve(true);
-        }
-      });
-    }
-    
-    return promise;
-  }
-  
+  // Validate file name
+  // Checks for valid Windows filenames:
+  // See http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
   function validateProjectName(projectName) {
-    // Validate file name
-    // Checks for valid Windows filenames:
-    // See http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
     var _illegalFilenamesRegEx = /^(\.+|com[1-9]|lpt[1-9]|nul|con|prn|aux)$/i;
     if ((projectName.search(/[\/?*:;\{\}<>\\|]+/) !== -1) || projectName.match(_illegalFilenamesRegEx)) {
         Dialogs.showModalDialog(
@@ -89,21 +70,62 @@ define(function (require, exports, module) {
   }
   
   function showErrorDialog(err) {
-    Dialogs.showModalDialog(
-      DefaultDialogs.DIALOG_ID_ERROR, 
-      ExtensionStrings.DIALOG_TITLE_ERROR,
-      err);
+    if (err) {
+      Dialogs.showModalDialog(
+        DefaultDialogs.DIALOG_ID_ERROR, 
+        ExtensionStrings.DIALOG_TITLE_ERROR,
+        err);
+    }
+  }
+  
+  function showInfoDialog(info) {
+    if (info) {
+      Dialogs.showModalDialog(
+        DefaultDialogs.DIALOG_ID_INFO, 
+        ExtensionStrings.DIALOG_TITLE_INFO,
+        info);  
+    }
   }
   
   function openProject(projectPath, notify) {
     ProjectManager.openProject(projectPath).done(function () {
       if (notify) {
-        Dialogs.showModalDialog(
-        DefaultDialogs.DIALOG_ID_INFO, 
-        ExtensionStrings.DIALOG_TITLE_INFO,
-        ExtensionStrings.PROJECT_GENERATED_MESSAGE);  
+        showInfoDialog(ExtensionStrings.PROJECT_GENERATED_MESSAGE);
       }      
     });
+  }
+  
+  function generateProject(opts) {
+    var context = {
+      Strings: Strings,
+      ExtensionStrings: ExtensionStrings,
+      templateName: opts.name,
+      templateVersion: opts.version
+    };
+    var dialog = Dialogs.showModalDialogUsingTemplate(
+      Mustache.render(ProjectProgressDialogTemplate, context)
+    );
+    var $dlg = dialog.getElement(),
+        $footer = $('.modal-footer', $dlg),
+        $message = $('.dialog-message', $dlg);
+    
+    zipUtils.exec("download", opts.url, null)
+      .done(function (f) {
+        unpackTemplate(f.packagePath, opts.projectPath, function (err) {
+          if (err) {
+            $message.text(StringUtils.format(ExtensionStrings.ERROR_MESSAGE_FORMAT, err));
+          } else {
+            $message.text(ExtensionStrings.PROJECT_GENERATED_MESSAGE);
+            openProject(opts.projectPath, false);
+          }
+        });
+      })
+      .fail(function (err) {
+        $message.text(StringUtils.format(ExtensionStrings.ERROR_MESSAGE_FORMAT, err));
+      })
+      .always(function () {
+        $footer.show();
+      });
   }
   
   function createNewProject() {
@@ -120,7 +142,10 @@ define(function (require, exports, module) {
     );
     
     var $dlg = dialog.getElement(),
+        $spinner = $('.dialog-progress', $dlg),
         $projectTemplate = $('.project-template', $dlg),
+        $projectVersion = $('.project-version', $dlg),
+        $projectVersionContainer = $('.project-version-container', $dlg),
         $projectName = $('.project-name', $dlg),
         $changeFolderBtn = $('.change-folder-btn', $dlg),
         $projectFolder = $('.project-folder', $dlg),
@@ -129,8 +154,17 @@ define(function (require, exports, module) {
     var getSelectedTemplate = function () {
       var index = $projectTemplate[0].selectedIndex,
           $el = $projectTemplate.children("option").eq(index),
-          p = $el ? $el.attr("package") || "" : "";
-      return p;
+          name = ($el && $el.length === 1) ? $el[0].innerText || "" : "",
+          repo = $el ? $el.attr("repo") || "" : "";
+      return { "name": name, "repo": repo };
+    };
+    
+    var getSelectedVersion = function () {
+      var index = $projectVersion[0].selectedIndex,
+          $el = $projectVersion.children("option").eq(index),
+          url = $el ? $el.attr("url") || "" : "",
+          name = ($el && $el.length === 1) ? $el[0].innerText || "" : "";
+      return { "name": name, "url": url };
     };
     
     dialog.done(function (buttonId) {
@@ -138,17 +172,19 @@ define(function (require, exports, module) {
         
         var targetFolder = $projectFolder.val(),
             projectName = $projectName.val(),
-            templatePackage = getSelectedTemplate();
+            template = getSelectedTemplate(),
+            version = getSelectedVersion();
         
         createProjectFolder(targetFolder, projectName)
           .fail(showErrorDialog)
           .done(function (projectPath) {
-            if (templatePackage) {
-              generateProject(projectPath, templatePackage)
-                .fail(showErrorDialog)
-                .done(function () {
-                  openProject(projectPath, true);
-                });
+            if (version.url) {
+              generateProject({
+                "name": template.name,
+                "version": version.name,
+                "url": version.url,
+                "projectPath": projectPath 
+              });
             } else if (projectName) {
               openProject(projectPath, true);
             }
@@ -170,6 +206,35 @@ define(function (require, exports, module) {
         e.stopPropagation();
     });
     
+    $projectTemplate.change(function () {
+      var tpl = getSelectedTemplate();
+      if (tpl.repo) {
+        $projectVersion.empty();
+        $projectVersionContainer.hide();
+        $spinner.show();
+        
+        getGitHubTags(tpl.repo).then(
+          function (tags) {
+            $spinner.hide();
+            if (tags.length > 0) {
+              $projectVersion.empty();
+              tags.forEach(function (t, idx) {
+                $projectVersion.append("<option id=\"" + idx.toString() + "\" url=\"" + t.zipball_url + "\">" + t.name + "</option>");
+              });
+              $projectVersionContainer.show();
+            }            
+          },
+          function (err) {
+            $spinner.hide();
+            Dialogs.showModalDialog(DefaultDialogs.DIALOG_ID_ERROR, ExtensionStrings.DIALOG_TITLE_ERROR, err);  
+          }
+        );
+      } else {
+        $projectVersionContainer.hide();
+        $spinner.hide();
+      }
+    });
+    
     $OkBtn.click(function (e) {
       if (!validateProjectName($projectName.val())) {
         e.preventDefault();
@@ -179,12 +244,16 @@ define(function (require, exports, module) {
   }
   
   function getProjectTemplates() {
-    var json = require('text!templates/templates.json'),
+    var json = require('text!templates.json'),
         settings = JSON.parse(json),
         result = [];
     for (var key in settings) {
       var entry = settings[key];
-      result.push({ id: key, package: entry.package, name: entry.name });
+      result.push({ 
+        id: key,
+        name: entry.name,
+        repo: entry.repo
+      });
     }
     return result;
   }
@@ -194,6 +263,26 @@ define(function (require, exports, module) {
     var fileMenu = Menus.getMenu(Menus.AppMenuBar.FILE_MENU);
     CommandManager.register(ExtensionStrings.NEW_PROJECT_MENU, MENU_ID, createNewProject);
     fileMenu.addMenuItem(MENU_ID, undefined, Menus.AFTER, Commands.FILE_NEW_UNTITLED);
+  }
+  
+  // expects 'repo' details in the format <user>/<project>
+  function getGitHubTags(repo) {
+    var promise = new $.Deferred();
+    
+    if (repo) {
+      var url = 'https://api.github.com/repos/' + repo + '/tags';
+      $.get(url)
+        .done(function (data) {
+          promise.resolve(data || []);
+        })
+        .fail(function () {
+          promise.reject('Error getting versions');  
+        });
+    } else {
+      promise.reject('Error accessing repo');
+    }
+    
+    return promise;
   }
   
   function init() {

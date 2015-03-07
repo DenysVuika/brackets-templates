@@ -4,21 +4,32 @@
   </div>
   <div class="modal-body">
     <div class="field-container input-field">
-      <p class="col-5">
+      <p class="col-5 left">
         <label for="project-name">{{ExtensionStrings.PROJECT_NAME}}</label>
         <input type="text" placeholder="{{ExtensionStrings.PROJECT_NAME_HINT}}" id="project-name" class="project-name">
       </p>
-      <p class="col-5">
+      <p class="col-5 right">
         <label>{{ExtensionStrings.TEMPLATE}}</label>
         <select class="project-template" required>
           <option id="none">{{ExtensionStrings.EMPTY_PROJECT_TEMPLATE}}</option>
           {{#templates}}
-          <option id="{{id}}" package="{{package}}">{{name}}</option>
+          <option id="{{id}}" repo="{{repo}}">{{name}}</option>
           {{/templates}}
         </select>
       </p>
     </div>
-    <div class="field-container input-field">
+    <div class="field-container input-field dialog-progress" style="display: none">
+      <div class="spinner large spin"></div>
+    </div>
+    <div class="field-container input-field project-version-container" style="display: none;">
+      <div class="col-5 left">
+      </div>
+      <div class="col-5 right">
+        <label>Version</label>
+        <select class="project-version"></select>
+      </div>      
+    </div>
+    <div class="field-container input-field" style="display: inline-block;">
       <label for="project-folder">{{ExtensionStrings.PROJECT_FOLDER}}</label>
       <input class="project-folder" type="text" value="{{currentFolder}}" id="project-folder" readonly>
       <button class="dialog-button btn change-folder-btn">{{ExtensionStrings.BUTTON_CHANGE_FOLDER}}</button>

@@ -1,0 +1,18 @@
+{
+  "html5": {
+    "name": "HTML5",
+    "repo": "denisvuyka/quickstart-html5"
+  },
+  "bootstrap": {
+    "name": "Bootstrap v3.3.2",
+    "repo": "denisvuyka/quickstart-bootstrap"
+  },
+  "angular": {
+    "name": "AngularJS v1.3.14",
+    "repo": "denisvuyka/quickstart-angular"
+  },
+  "html5Boilerplate": {
+    "name": "HTML5 Boilerplate",
+    "repo": "h5bp/html5-boilerplate"
+  }
+}

@@ -1,6 +1,13 @@
-.new-project-dialog .col-5 {
-  float: left;
+.col-5 {
   width: 50%;
+}
+
+.col-5.left {
+  float: left;
+}
+
+.col-5.right {
+  float: right;
 }
 
 .new-project-dialog label {
@@ -42,4 +49,15 @@
 .new-project-dialog .project-template:focus {
   border: 1px solid #0055ad;
   box-shadow: 0 0 0 2px #6fb5f1;
+}
+
+.new-project-dialog .project-version {
+  width: 280px;
+}
+.dialog-progress {
+  text-align: center;
+}
+
+.dialog-message {
+  text-align: center;
 }
