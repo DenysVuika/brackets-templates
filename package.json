@@ -3,7 +3,7 @@
   "title": "Project Templates",
   "description": "Adds template-based project generation to Brackets",
   "homepage": "https://github.com/DenisVuyka/brackets-templates",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "categories": "snippets",
   "author": "Denis Vuyka <denis.vuyka@gmail.com> (https://denisvuyka.wordpress.com)",
   "license": "MIT",
