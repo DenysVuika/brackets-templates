@@ -14,8 +14,9 @@ define({
   "TEMPLATE": "Шаблон",
   "EMPTY_PROJECT_TEMPLATE": "Пустой проект",
   "PROJECT_FOLDER": "Каталог проекта",
-  "BUTTON_CHANGE_FOLDER": "Изменить...",
+  "BUTTON_CHANGE_FOLDER": "...",
   "PROJECT_SETUP": "Создание проекта",
   "MSG_CONFIGURING_PROJECT": "Конфигурация проекта:",
-  "ERROR_MESSAGE_FORMAT": "Ошибка: {0}"
+  "ERROR_MESSAGE_FORMAT": "Ошибка: {0}",
+  "VERSION": "Версия"
 });

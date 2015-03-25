@@ -14,8 +14,9 @@ define({
   "TEMPLATE": "Template",
   "EMPTY_PROJECT_TEMPLATE": "None (Empty Project)",
   "PROJECT_FOLDER": "Project Folder",
-  "BUTTON_CHANGE_FOLDER": "Change...",
+  "BUTTON_CHANGE_FOLDER": "...",
   "PROJECT_SETUP": "Project Setup",
   "MSG_CONFIGURING_PROJECT": "Configuring project:",
-  "ERROR_MESSAGE_FORMAT": "Error: {0}"
+  "ERROR_MESSAGE_FORMAT": "Error: {0}",
+  "VERSION": "Version"
 });

@@ -27,12 +27,12 @@
 .new-project-dialog .project-folder {
   border-radius: 3px 0 0 3px;
   cursor: text;    
-  width: 470px;
+  width: 510px;
 }
 
 .new-project-dialog .change-folder-btn {
   border-radius: 3px;
-  margin-top: 5px;
+  /*margin-top: 5px;*/
 }
 
 .new-project-dialog .project-name {
